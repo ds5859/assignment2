@@ -1,0 +1,47 @@
+
+
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="content-section"> 
+    <h1>{{ pagename }}</h1>
+        <form action="" method="POST">
+            {{ form.hidden_tag() }}
+            <fieldset class ="form-group"> 
+                <div class="form-group"> 
+                    {{ form.inputtext.label(class="form-control-label") }}
+
+                    {% if form.inputtext.errors %}
+                        {{ form.inputtext(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.inputtext.errors %}
+                                <span>{{error}}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.inputtext(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+        <div>
+            <fieldset class="form-group">
+                <p>Original Input</p>
+                <textarea rows="5" cols="50" placeholder="Spell Check Input" style="text-align:left; overflow:auto;">
+                    {{ inputtext }}
+                </textarea>
+            </fieldset>
+        </div>
+        <div>
+            <fieldset class="form-group">
+                <p>Mispelled Words</p>
+                <textarea rows="5" cols="50" placeholder="Spell Check Output">
+                    {{ outputtext }}
+                </textarea>
+            </fieldset>
+        </div>
+    </div>
+{% endblock content %}
+

@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request, url_for, flash, redirect
+from flask import Flask, render_template, request, url_for, flash, redirect, session
 from forms import RegistrationForm, LoginForm, SpellForm
 import subprocess
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '4a6542b7886a0d46a36c1bf51f9a11ac720dde847d4b0a9b'
+
+# initializing user dictionary with root account
+users = {'root': {'pword': 'toor', '2fa': 1234567890}} 
 
 @app.route('/') #main page
 @app.route('/index') #alt main page
@@ -13,7 +16,11 @@ def main():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
+        #TODO: hash and salt passwords and 2fa
+        #TODO: if user already exists? if form.uname.data in users
+        users[form.uname.data] = {'pword': form.pword.data, '2fa': form.twofa.data}
         flash(f'Account created for {form.uname.data}', 'success')
+        print(users)
         return redirect(url_for('main'))
     return render_template('register.html', title = 'Register', pagename = 'Registration Page', form = form)
 
@@ -21,9 +28,13 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        if form.uname.data == 'test123' and form.twofa.data == '123456789' and form.pword.data == 'test123':
-            flash('Logged in successfully', 'success')
-            return redirect(url_for('main'))
+        if form.uname.data in users:
+            if ((users[form.uname.data]['pword'] == form.pword.data) and (users[form.uname.data]['2fa'] == form.twofa.data)):
+            #if form.uname.data == 'test123' and form.twofa.data == '123456789' and form.pword.data == 'test123':
+                flash('Logged in successfully', 'success')
+                return redirect(url_for('main'))
+            else:
+                flash('Unsuccessful Login', 'danger')
         else:
             flash('Unsuccessful Login', 'danger')
     return render_template('login.html', title = 'Login', pagename = 'Login Page', form = form)
@@ -63,7 +74,7 @@ def spell():
     #else:
         #flash('No Input Detected', 'danger')
         #return mispelled
-        return render_template('spell_check.html', title = 'Spell Checker', pagename = 'Spell Check Page', inputtext = inputtext, outputtext = mispelled, form = form)
+        return render_template('spell_check.html', title = 'Spell Checker', pagename = 'Spell Check Page', textout = inputtext, misspelled = mispelled, form = form)
 
     #take input from user - validate
     #open new input file - take user input and put in file

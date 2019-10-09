@@ -3,6 +3,7 @@ from forms import RegistrationForm, LoginForm, SpellForm
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, current_user, logout_user, login_required
 import subprocess
+#from subprocess import PIPE
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -127,7 +128,9 @@ def spell():
         # run subprocess 
         # pipe output to new field
         # delete text file
+        #spellout = subprocess.run(['./a.out', 'userinput.txt', 'wordlist.txt'], check=True, stdout=subprocess.PIPE, universal_newlines=True) #use if using python3.6
         spellout = subprocess.run(['./a.out', 'userinput.txt', 'wordlist.txt'], capture_output=True, text=True) # stderr=subprocess.DEVNULL
+
         with open('mispelled.txt', 'w') as g:
             g.write(spellout.stdout)
             g.close()

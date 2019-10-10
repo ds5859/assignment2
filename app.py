@@ -2,10 +2,12 @@ from flask import Flask, render_template, request, url_for, flash, redirect, ses
 from forms import RegistrationForm, LoginForm, SpellForm
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, current_user, logout_user, login_required
+from flask_wtf.csrf import CsrfProtect
 import subprocess
 #from subprocess import PIPE
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+csrf = CsrfProtect(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
@@ -38,6 +40,10 @@ def request_loader(request):
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return 'Unauthorized'
+
+@csrf.error_handler
+def csrf_error(reason):
+    return render_template('csrf_error.html', reason=reason), 400
 
 @app.route('/') #main page
 @app.route('/index') #alt main page

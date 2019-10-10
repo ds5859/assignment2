@@ -1,5 +1,8 @@
 {% extends 'layout.html' %}
 {% block content %}
+    <form method="post" action="/">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    </form>
     <h1>{{ pagename }}</h1>
     <p>
         <h2>Introduction</h2>

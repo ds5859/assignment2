@@ -39,7 +39,10 @@ def request_loader(request):
     if users[form.uname.data]['2fa'] == "":  
         user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data)) 
     else:
-        user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data) and (users[uname]['2fa'] == form.twofa.data))
+        if not form.twofa.data:
+            return
+        else:
+            user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data) and (users[uname]['2fa'] == form.twofa.data))
     #BREAKING when user who has 2fa tries logging in with a blank 2fa field
     #if not form.twofa.data:
        # if users[form.uname.data]['2fa'] is None:
@@ -89,6 +92,7 @@ def register():
                 users[form.uname.data] = {'pword': hash_pword, '2fa': ""}
                 flash(f'Account created for {form.uname.data}. Please Login.', 'success')
                 print(users)
+                id = 'success'
                 return redirect(url_for('login'))
             else:
                 #TODO: hash and salt passwords and 2fa
@@ -99,6 +103,7 @@ def register():
                 users[form.uname.data] = {'pword': hash_pword, '2fa': form.twofa.data}
                 flash(f'Account created for {form.uname.data} with 2-Factor Authentication. Please Login.', 'success')
                 print(users)
+                id = 'success'
                 return redirect(url_for('login'))
     return render_template('register.html', title = 'Register', pagename = 'Registration Page', form = form)
 
@@ -127,6 +132,7 @@ def login():
                     print(user)
                     print(user.id)
                     return redirect(url_for('main'))
+                    id = 'success'
                 else:
                     flash('Unsuccessful Login', 'danger')
             #else if not form.twofa.data:
@@ -146,6 +152,7 @@ def login():
                     print(login_user(user))
                     print(user)
                     print(user.id)
+                    id = 'success'
                     return redirect(url_for('main'))
                 else:
                     flash('Unsuccessful Login', 'danger')

@@ -2,16 +2,18 @@ from flask import Flask, render_template, request, url_for, flash, redirect, ses
 from forms import RegistrationForm, LoginForm, SpellForm
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, current_user, logout_user, login_required
-from flask_wtf.csrf import CsrfProtect
+from flask_wtf.csrf import CSRFProtect
 import subprocess
 #from subprocess import PIPE
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
-csrf = CsrfProtect(app)
+csrf = CSRFProtect(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 app.config['SECRET_KEY'] = '4a6542b7886a0d46a36c1bf51f9a11ac720dde847d4b0a9b'
+
+#csrf.init_app(app)
 
 # initializing user dictionary with root account
 users = {'root': {'pword': 'toor', '2fa': 1234567890}} 
@@ -34,16 +36,28 @@ def request_loader(request):
         return
     user = User()
     user.id = uname
-    user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data) and bcrypt.check_password_hash(users[uname]['2fa'], form.twofa.data))
+    if users[form.uname.data]['2fa'] == "":  
+        user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data)) 
+    else:
+        user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data) and (users[uname]['2fa'] == form.twofa.data))
+    #BREAKING when user who has 2fa tries logging in with a blank 2fa field
+    #if not form.twofa.data:
+       # if users[form.uname.data]['2fa'] is None:
+            #user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data) and bcrypt.check_password_hash(users[uname]['2fa'], form.twofa.data))
+        #    user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data)) 
+    #else: 
+        #user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data)) 
+      # user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data) and bcrypt.check_password_hash(users[uname]['2fa'], form.twofa.data))
     return user
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return 'Unauthorized'
 
-@csrf.error_handler
-def csrf_error(reason):
-    return render_template('csrf_error.html', reason=reason), 400
+#@csrf.error_handler
+###@app.errorhandler(CSRFProtect)
+#def csrf_error(reason):
+    #return render_template('csrf_error.html', reason=reason), 400
 
 @app.route('/') #main page
 @app.route('/index') #alt main page
@@ -69,15 +83,23 @@ def register():
         if form.uname.data in users:
             flash('Registration Error. Please select a different User Name', 'danger')
         else:
-            #TODO: hash and salt passwords and 2fa
-            #TODO: if user already exists? if form.uname.data in users
-            hash_pword = bcrypt.generate_password_hash(form.pword.data).decode('utf-8')
-            hash_twofa = bcrypt.generate_password_hash(form.twofa.data).decode('utf-8')
-            #users[form.uname.data] = {'pword': form.pword.data, '2fa': form.twofa.data}
-            users[form.uname.data] = {'pword': hash_pword, '2fa': hash_twofa}
-            flash(f'Account created for {form.uname.data}. Please Login.', 'success')
-            print(users)
-            return redirect(url_for('login'))
+            if not form.twofa.data:
+                hash_pword = bcrypt.generate_password_hash(form.pword.data).decode('utf-8')
+                #users[form.uname.data] = {'pword': form.pword.data, '2fa': form.twofa.data}
+                users[form.uname.data] = {'pword': hash_pword, '2fa': ""}
+                flash(f'Account created for {form.uname.data}. Please Login.', 'success')
+                print(users)
+                return redirect(url_for('login'))
+            else:
+                #TODO: hash and salt passwords and 2fa
+                #TODO: if user already exists? if form.uname.data in users
+                hash_pword = bcrypt.generate_password_hash(form.pword.data).decode('utf-8')
+                #hash_twofa = bcrypt.generate_password_hash(form.twofa.data).decode('utf-8')
+                #users[form.uname.data] = {'pword': form.pword.data, '2fa': form.twofa.data}
+                users[form.uname.data] = {'pword': hash_pword, '2fa': form.twofa.data}
+                flash(f'Account created for {form.uname.data} with 2-Factor Authentication. Please Login.', 'success')
+                print(users)
+                return redirect(url_for('login'))
     return render_template('register.html', title = 'Register', pagename = 'Registration Page', form = form)
 
 @app.route('/login', methods=["POST", "GET"]) #login page
@@ -89,23 +111,44 @@ def login():
     if form.validate_on_submit():
         if form.uname.data in users:
             uname = form.uname.data
-            if (bcrypt.check_password_hash(users[form.uname.data]['pword'], form.pword.data) and bcrypt.check_password_hash(users[form.uname.data]['2fa'], form.twofa.data)):
-            #if ((users[form.uname.data]['pword'] == form.pword.data) and (users[form.uname.data]['2fa'] == form.twofa.data)):
-            #if form.uname.data == 'test123' and form.twofa.data == '123456789' and form.pword.data == 'test123':
-                #login_user(form.uname.data, remember=form.remember.data)
-                #User.curr_user = form.uname.data
-                #login_user(curr_user, remember=form.remember.data)
-                user = User()
-                user.id = uname
-                login_user(user, remember=form.remember.data)
-                flash('Logged in successfully', 'success')
-                #return 'Logged in as: ' + current_user.id
-                print(login_user(user))
-                print(user)
-                print(user.id)
-                return redirect(url_for('main'))
+            if users[form.uname.data]['2fa'] == "":
+                if (bcrypt.check_password_hash(users[form.uname.data]['pword'], form.pword.data)): # and not form.twofa.data)
+                #if ((users[form.uname.data]['pword'] == form.pword.data) and (users[form.uname.data]['2fa'] == form.twofa.data)):
+                #if form.uname.data == 'test123' and form.twofa.data == '123456789' and form.pword.data == 'test123':
+                    #login_user(form.uname.data, remember=form.remember.data)
+                    #User.curr_user = form.uname.data
+                    #login_user(curr_user, remember=form.remember.data)
+                    user = User()
+                    user.id = uname
+                    login_user(user, remember=form.remember.data)
+                    flash('Logged in successfully', 'success')
+                    #return 'Logged in as: ' + current_user.id
+                    print(login_user(user))
+                    print(user)
+                    print(user.id)
+                    return redirect(url_for('main'))
+                else:
+                    flash('Unsuccessful Login', 'danger')
+            #else if not form.twofa.data:
+                #flash('Unsuccessful Login', 'danger')
             else:
-                flash('Unsuccessful Login', 'danger')
+                if (bcrypt.check_password_hash(users[form.uname.data]['pword'], form.pword.data) and (users[form.uname.data]['2fa'] == form.twofa.data)):
+                #if ((users[form.uname.data]['pword'] == form.pword.data) and (users[form.uname.data]['2fa'] == form.twofa.data)):
+                #if form.uname.data == 'test123' and form.twofa.data == '123456789' and form.pword.data == 'test123':
+                    #login_user(form.uname.data, remember=form.remember.data)
+                    #User.curr_user = form.uname.data
+                    #login_user(curr_user, remember=form.remember.data)
+                    user = User()
+                    user.id = uname
+                    login_user(user, remember=form.remember.data)
+                    flash('Logged in successfully', 'success')
+                    #return 'Logged in as: ' + current_user.id
+                    print(login_user(user))
+                    print(user)
+                    print(user.id)
+                    return redirect(url_for('main'))
+                else:
+                    flash('Unsuccessful Login', 'danger')
         else:
             flash('Unsuccessful Login. No such User.', 'danger')
     return render_template('login.html', title = 'Login', pagename = 'Login Page', form = form)
@@ -134,8 +177,8 @@ def spell():
         # run subprocess 
         # pipe output to new field
         # delete text file
-        #spellout = subprocess.run(['./a.out', 'userinput.txt', 'wordlist.txt'], check=True, stdout=subprocess.PIPE, universal_newlines=True) #use if using python3.6
-        spellout = subprocess.run(['./a.out', 'userinput.txt', 'wordlist.txt'], capture_output=True, text=True) # stderr=subprocess.DEVNULL
+        spellout = subprocess.run(['./a.out', 'userinput.txt', 'wordlist.txt'], check=True, stdout=subprocess.PIPE, universal_newlines=True) #use if using python3.6
+        #spellout = subprocess.run(['./a.out', 'userinput.txt', 'wordlist.txt'], capture_output=True, text=True) # stderr=subprocess.DEVNULL
 
         with open('mispelled.txt', 'w') as g:
             g.write(spellout.stdout)
@@ -163,8 +206,5 @@ def spell():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
 
 

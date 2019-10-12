@@ -93,7 +93,8 @@ def register():
                 flash(f'Account created for {form.uname.data}. Please Login.', 'success')
                 print(users)
                 id = 'success'
-                return redirect(url_for('login'))
+                #return redirect(url_for('login'))
+                return render_template('register.html', title = 'Success', pagename = 'Registration Page', id = 'Success', form = form)
             else:
                 #TODO: hash and salt passwords and 2fa
                 #TODO: if user already exists? if form.uname.data in users
@@ -104,7 +105,8 @@ def register():
                 flash(f'Account created for {form.uname.data} with 2-Factor Authentication. Please Login.', 'success')
                 print(users)
                 id = 'success'
-                return redirect(url_for('login'))
+                #return redirect(url_for('login'))
+                return render_template('register.html', title = 'Success', pagename = 'Registration Page', id = 'Success', form = form)
     return render_template('register.html', title = 'Register', pagename = 'Registration Page', form = form)
 
 @app.route('/login', methods=["POST", "GET"]) #login page

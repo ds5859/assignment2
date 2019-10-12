@@ -117,6 +117,7 @@ def login():
     #if current_user.is_authenticated:
         #flash('Already Logged In', 'info')
         #return redirect(url_for('main'))
+    gradescope = ''
     form = LoginForm()
     if form.validate_on_submit():
         if form.uname.data in users:
@@ -136,10 +137,13 @@ def login():
                     print(login_user(user))
                     print(user)
                     print(user.id)
-                    return redirect(url_for('main'))
-                    id = 'success'
+                    #return redirect(url_for('main'))
+                    gradescope = 'Success'
+                    return render_template('login.html', title = 'Login', pagename = 'Login Page', gradescope = gradescope, form = form)
                 else:
                     flash('Unsuccessful Login', 'danger')
+                    gradescope = 'Incorrect'
+                    return render_template('login.html', title = 'Login', pagename = 'Login Page', gradescope = gradescope, form = form)
             #else if not form.twofa.data:
                 #flash('Unsuccessful Login', 'danger')
             else:
@@ -157,12 +161,17 @@ def login():
                     print(login_user(user))
                     print(user)
                     print(user.id)
-                    id = 'success'
-                    return redirect(url_for('main'))
+                    gradescope = 'Success'
+                    #return redirect(url_for('main'))
+                    return render_template('login.html', title = 'Login', pagename = 'Login Page', gradescope = gradescope, form = form)
                 else:
                     flash('Unsuccessful Login', 'danger')
+                    gradescope = 'Incorrect'
+                    return render_template('login.html', title = 'Login', pagename = 'Login Page', gradescope = gradescope, form = form)
         else:
             flash('Unsuccessful Login. No such User.', 'danger')
+            gradescope = 'Incorrect'
+            return render_template('login.html', title = 'Login', pagename = 'Login Page', gradescope = gradescope, form = form)
     return render_template('login.html', title = 'Login', pagename = 'Login Page', form = form)
 
     #return "Test Login Page"

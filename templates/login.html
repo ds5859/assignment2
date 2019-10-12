@@ -2,8 +2,8 @@
 {% block content %}
     <div class="content-section"> 
     <h1>{{ pagename }}</h1>
-        <p>{{ id }}</p>
         <form action="" method="POST">
+            <p id="result">{{ gradescope }}</p>
             <!--<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             {{ form.hidden_tag() }} -->
             {{ form.csrf_token }}

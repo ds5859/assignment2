@@ -78,13 +78,16 @@ def logout():
 
 @app.route('/register', methods=["POST", "GET"]) #registration page
 def register():
+    gradescope = ''
     if current_user.is_authenticated:
         flash('Already Logged In', 'info')
         return redirect(url_for('main'))
     form = RegistrationForm()
     if form.validate_on_submit():
         if form.uname.data in users:
+            gradescope = 'failure'
             flash('Registration Error. Please select a different User Name', 'danger')
+            return render_template('register.html', title = 'Success', pagename = 'Registration Page', gradescope = gradescope, form = form)
         else:
             if not form.twofa.data:
                 hash_pword = bcrypt.generate_password_hash(form.pword.data).decode('utf-8')
@@ -92,9 +95,9 @@ def register():
                 users[form.uname.data] = {'pword': hash_pword, '2fa': ""}
                 flash(f'Account created for {form.uname.data}. Please Login.', 'success')
                 print(users)
-                id = 'success'
+                gradescope = 'success'
                 #return redirect(url_for('login'))
-                return render_template('register.html', title = 'Success', pagename = 'Registration Page', id = 'success', form = form)
+                return render_template('register.html', title = 'Success', pagename = 'Registration Page', gradescope = gradescope, form = form)
             else:
                 #TODO: hash and salt passwords and 2fa
                 #TODO: if user already exists? if form.uname.data in users
@@ -104,9 +107,9 @@ def register():
                 users[form.uname.data] = {'pword': hash_pword, '2fa': form.twofa.data}
                 flash(f'Account created for {form.uname.data} with 2-Factor Authentication. Please Login.', 'success')
                 print(users)
-                id = 'success'
+                gradescope = 'success'
                 #return redirect(url_for('login'))
-                return render_template('register.html', title = 'Success', pagename = 'Registration Page', id = 'success', form = form)
+                return render_template('register.html', title = 'Success', pagename = 'Registration Page', gradescope = gradescope, form = form)
     return render_template('register.html', title = 'Register', pagename = 'Registration Page', form = form)
 
 @app.route('/login', methods=["POST", "GET"]) #login page

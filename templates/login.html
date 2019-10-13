@@ -23,20 +23,20 @@
                     {% endif %}
                 </div>
                 <div class="form-group"> 
-                    {{ form.twofa.label(class="form-control-label") }}
+                    {{ form.2fa.label(class="form-control-label") }}
 
-                    {% if form.twofa.errors %}
-                        {{ form.twofa(class="form-control form-control-lg is-invalid") }}
+                    {% if form.2fa.errors %}
+                        {{ form.2fa(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form.twofa.errors %}
+                            {% for error in form.2fa.errors %}
                                 <span>{{error}}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.twofa(class="form-control form-control-lg") }}
+                        {{ form.2fa(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
-                <input type="hidden" id="2fa">
+                <!--<input type="hidden" id="2fa"> -->
                 <div class="form-group"> 
                     {{ form.pword.label(class="form-control-label") }}
 

@@ -89,7 +89,7 @@ def register():
             flash('Registration Error. Please select a different User Name', 'danger')
             return render_template('register.html', title = 'Success', pagename = 'Registration Page', gradescope = gradescope, form = form)
         else:
-            if not form.2fa.data:
+            if not form.twofa.data:
                 hash_pword = bcrypt.generate_password_hash(form.pword.data).decode('utf-8')
                 #users[form.uname.data] = {'pword': form.pword.data, '2fa': form.twofa.data}
                 users[form.uname.data] = {'pword': hash_pword, '2fa': ""}
@@ -104,7 +104,7 @@ def register():
                 hash_pword = bcrypt.generate_password_hash(form.pword.data).decode('utf-8')
                 #hash_twofa = bcrypt.generate_password_hash(form.twofa.data).decode('utf-8')
                 #users[form.uname.data] = {'pword': form.pword.data, '2fa': form.twofa.data}
-                users[form.uname.data] = {'pword': hash_pword, '2fa': form.2fa.data}
+                users[form.uname.data] = {'pword': hash_pword, '2fa': form.twofa.data}
                 flash(f'Account created for {form.uname.data} with 2-Factor Authentication. Please Login.', 'success')
                 print(users)
                 gradescope = 'success'
@@ -147,7 +147,7 @@ def login():
             #else if not form.twofa.data:
                 #flash('Unsuccessful Login', 'danger')
             else:
-                if (bcrypt.check_password_hash(users[form.uname.data]['pword'], form.pword.data) and (users[form.uname.data]['2fa'] == form.2fa.data)):
+                if (bcrypt.check_password_hash(users[form.uname.data]['pword'], form.pword.data) and (users[form.uname.data]['2fa'] == form.twofa.data)):
                 #if ((users[form.uname.data]['pword'] == form.pword.data) and (users[form.uname.data]['2fa'] == form.twofa.data)):
                 #if form.uname.data == 'test123' and form.twofa.data == '123456789' and form.pword.data == 'test123':
                     #login_user(form.uname.data, remember=form.remember.data)

@@ -28,7 +28,7 @@ def load_user(uname):
     user = User()
     user.id = uname
     return user
-
+"""
 @login_manager.request_loader
 def request_loader(request):
     uname = request.form.get('uname')
@@ -52,7 +52,7 @@ def request_loader(request):
         #user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data)) 
       # user.is_authenticated = (bcrypt.check_password_hash(users[uname]['pword'], form.pword.data) and bcrypt.check_password_hash(users[uname]['2fa'], form.twofa.data))
     return user
-
+"""
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return 'Unauthorized'

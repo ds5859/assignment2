@@ -6,25 +6,7 @@ server_login=server_address + "/login"
 server_register=server_address + "/register"
 server_spellcheck=server_address + "/spell_check"
 #print("Test Ping Pages")
-"""
-def get_element_by_id(text, eid):
-    soup = BeautifulSoup(text, "html.parser")
-    result = soup.find(id=eid)
-    return result
 
-def login(uname, pword, twofactor, session=None):
-    addr = server_login
-    if session is None:
-        session = requests.Session()
-    test_creds = {"username": uname, "password": pword, "twofa": twofactor}
-    r = session.post(addr, data = test_creds)
-    print("h1")
-    print("r")
-    print("h2")
-    success = get_element_by_id(r.text, 'result')
-    assert success != None, "missing id='result' in your login response"
-    return "success" in success.text
-"""
 class FeatureTest(unittest.TestCase):
     TESTING = True
     WTF_CSRF_ENABLED = False
@@ -44,24 +26,7 @@ class FeatureTest(unittest.TestCase):
     def test_spellcheck_page_exists(self):
         response = requests.get(server_spellcheck)
         self.assertEqual(response.status_code, 200)
-    """
-    def test_login_bad_pass(self):
-        res = self.get("/login")
-        soup = BeautifulSoup(res.data, 'html.parser')
-        csrf_token = soup.find('form').contents[1].attrs['value']
-        res = self.post('/login',
-                        data=dict(userName='user1', password='user1xyz', auth2fa='user1', csrf_token=csrf_token),
-                        follow_redirects=True)
-        soup = BeautifulSoup(res.data, 'html.parser')
-        response = soup.find(id='result')
-        assert (str(response.contents[0]) == 'Incorrect')
     
-    def test_register(self):
-        req = requests.post(url=server_register, data={'uname': 'BobTest', 'pword': 'Test1234', '2fa': '10001234567'})
-        soup = BeautifulSoup(req.text, 'html.parser')
-        msg = soup.find(id="success").text
-        assert(msg =="success")
-    """
     #check registration functionality 
     def test_register(self):
         sess=requests.session()

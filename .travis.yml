@@ -4,6 +4,7 @@ python:
 
 before_install:
  - sudo apt-get update 
+ - chmod +x a.out
 
 install:
  - pip install tox-travis

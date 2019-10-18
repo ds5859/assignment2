@@ -19,7 +19,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class SpellForm(FlaskForm):
-    inputtext = TextAreaField('Type or Paste Text Below', validators=[DataRequired()])
+    inputtext = TextAreaField('Type or Paste Text Below', id="inputtext", validators=[DataRequired()])
     submit = SubmitField('Submit')
     textout = TextAreaField('Original Input')
-    misspelled = TextAreaField('Misspelled Words')
+    misspelled = TextAreaField('Misspelled Words', id="misspelled", validators=[])

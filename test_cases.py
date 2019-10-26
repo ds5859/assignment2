@@ -1,11 +1,13 @@
 import unittest, requests
 from bs4 import BeautifulSoup
+import random
 
 server_address="http://127.0.0.1:5000"
 server_login=server_address + "/login"
 server_register=server_address + "/register"
 server_spellcheck=server_address + "/spell_check"
 #print("Test Ping Pages")
+TestUser = "TestUser" + str(random.randint(1,100))
 
 class FeatureTest(unittest.TestCase):
     TESTING = True
@@ -36,7 +38,7 @@ class FeatureTest(unittest.TestCase):
         token=soup.find('input', {'name':'csrf_token'})['value']
         #print(token)
 
-        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % ("TestUser1", "TestUser1", "10001234567", token))
+        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % (TestUser, TestUser, "10001234567", token))
         post_header={'Content-type': 'application/x-www-form-urlencoded'} #content type not working with multipart/form-data or text/plain
         response2=sess.post(url=server_register, headers=post_header, data=post_data)
         
@@ -52,7 +54,7 @@ class FeatureTest(unittest.TestCase):
         soup=BeautifulSoup(response.text, 'html.parser')
         token=soup.find('input', {'name':'csrf_token'})['value']
 
-        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % ("TestUser1", "TestUser1", "10001234567", token)) # make sure uname matches above test
+        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % (TestUser, TestUser, "10001234567", token)) # make sure uname matches above test
         post_header={'Content-type': 'application/x-www-form-urlencoded'} 
         response2=sess.post(url=server_register, headers=post_header, data=post_data)
         
@@ -66,7 +68,7 @@ class FeatureTest(unittest.TestCase):
         soup=BeautifulSoup(response.text, 'html.parser')
         token=soup.find('input', {'name':'csrf_token'})['value']
         
-        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % ("TestUser50", "TestUser50", "10001234567", token)) # make sure uname not in dict or credentials mismatch
+        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % ("TestUser50000", "TestUser50000", "10001234567", token)) # make sure uname not in dict or credentials mismatch
         post_header={'Content-type': 'application/x-www-form-urlencoded'} 
         response2=sess.post(url=server_login, headers=post_header, data=post_data)
 
@@ -80,7 +82,7 @@ class FeatureTest(unittest.TestCase):
         soup=BeautifulSoup(response.text, 'html.parser')
         token=soup.find('input', {'name':'csrf_token'})['value']
         
-        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % ("TestUser1", "TestUser1", "10001234567", token)) # make sure uname not in dict or credentials mismatch
+        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % (TestUser, TestUser, "10001234567", token)) # make sure uname not in dict or credentials mismatch
         post_header={'Content-type': 'application/x-www-form-urlencoded'} 
         response2=sess.post(url=server_login, headers=post_header, data=post_data)
 
@@ -94,7 +96,7 @@ class FeatureTest(unittest.TestCase):
         soup=BeautifulSoup(response.text, 'html.parser')
         token=soup.find('input', {'name':'csrf_token'})['value']
         
-        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % ("TestUser1", "TestUser1", "10001234567", token)) # make sure uname not in dict or credentials mismatch
+        post_data=('uname=%s&pword=%s&twofa=%s&csrf_token=%s' % (TestUser, TestUser, "10001234567", token)) # make sure uname not in dict or credentials mismatch
         post_header={'Content-type': 'application/x-www-form-urlencoded'} 
         response2=sess.post(url=server_login, headers=post_header, data=post_data)
 
